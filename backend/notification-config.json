@@ -1,0 +1,14 @@
+{
+  "whatsapp": {
+    "enabled": true,
+    "apiUrl": "https://waha-ralkawnbedus.cgk-pro.sumopod.my.id",
+    "apiKey": "x4aqZlbG1SOlaeF27ic3swaeSBQu197M",
+    "sessionId": "Kz-WAHA",
+    "phoneNumber": ""
+  },
+  "telegram": {
+    "enabled": true,
+    "botToken": "7998311656:AAGkQihWSx5YD5-ThR-pDhzZIdGs06_YFOQ",
+    "chatId": "727665815"
+  }
+}

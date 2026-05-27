@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  name        String
+  username    String   @unique
+  password    String
+  role        String   @default("technician") // admin, technician, management
+  phone       String   @default("")
+  telegramId  String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orders      OrderTechnician[]
+  notifications Notification[]
+}
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  name      String
+  address   String   @default("")
+  phone     String   @default("")
+  joinDate  DateTime @default(now())
+
+  orders          Order[]
+  maintenanceContracts MaintenanceContract[]
+
+  @@unique([name, phone])
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+}
+
+model Product {
+  id            Int      @id @default(autoincrement())
+  code          String   @unique
+  name          String
+  categoryId    Int?
+  category      Category? @relation(fields: [categoryId], references: [id])
+  price         Float    @default(0)
+  purchasePrice Float    @default(0)
+  stock         Int      @default(0)
+  minStock      Int      @default(0)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  orderSpareparts   OrderSparepart[]
+  inventoryEntries  InventoryEntry[]
+  maintenanceContracts MaintenanceContract[]
+}
+
+model Service {
+  id       Int      @id @default(autoincrement())
+  name     String
+  price    Float    @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id            Int      @id @default(autoincrement())
+  customerId    Int?
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  customerName  String
+  address       String   @default("")
+  phone         String   @default("")
+  type          String   @default("service") // service, sales
+  status        String   @default("ORDER") // ORDER, PROCESS, OUTSTANDING, DONE, PENDING, RESCHEDULE
+  notes         String   @default("")
+  totalCost     Float    @default(0)
+  paidAmount    Float    @default(0)
+  paymentMethod String   @default("")
+  paymentDate   String   @default("")
+  scheduledDate String   @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  technicianIds    Int[]              @default([])
+  technicians      OrderTechnician[]
+  items            OrderItem[]
+  serviceItems     OrderServiceItem[]
+  spareparts       OrderSparepart[]
+  payments         Payment[]
+  serviceHistory   ServiceHistory[]
+  report           OrderReport?
+  maintenanceContracts MaintenanceContract[]
+}
+
+model OrderTechnician {
+  orderId     Int
+  technicianId Int
+  order       Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  technician  User  @relation(fields: [technicianId], references: [id])
+
+  @@id([orderId, technicianId])
+}
+
+model OrderItem {
+  id        Int    @id @default(autoincrement())
+  orderId   Int
+  order     Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId Int?
+  name      String
+  qty       Int    @default(1)
+  price     Float  @default(0)
+}
+
+model OrderServiceItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  serviceId Int?
+  name      String
+  qty       Int     @default(1)
+  price     Float   @default(0)
+}
+
+model OrderSparepart {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId Int?
+  product   Product? @relation(fields: [productId], references: [id])
+  name      String
+  qty       Int     @default(1)
+  price     Float   @default(0)
+}
+
+model OrderReport {
+  id          Int    @id @default(autoincrement())
+  orderId     Int    @unique
+  order       Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  description String @default("")
+  photos      String @default("") // JSON array of photo URLs
+  rating      Int?
+  feedback    String @default("")
+}
+
+model ServiceHistory {
+  id          Int      @id @default(autoincrement())
+  orderId     Int
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status      String
+  date        String
+  technician  String   @default("")
+  note        String   @default("")
+  createdAt   DateTime @default(now())
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  orderId   Int?
+  order     Order?   @relation(fields: [orderId], references: [id])
+  amount    Float    @default(0)
+  method    String   @default("cash") // cash, transfer, qris
+  date      String
+  note      String   @default("")
+  createdAt DateTime @default(now())
+}
+
+model InventoryEntry {
+  id        Int      @id @default(autoincrement())
+  productId Int?
+  product   Product? @relation(fields: [productId], references: [id])
+  type      String   // IN, OUT
+  quantity  Int      @default(0)
+  reference String   @default("") // PO number, order reference
+  date      String
+  supplier  String   @default("")
+  note      String   @default("")
+  createdAt DateTime @default(now())
+}
+
+model MaintenanceContract {
+  id          Int      @id @default(autoincrement())
+  customerId  Int?
+  customer    Customer? @relation(fields: [customerId], references: [id])
+  customerName String
+  address     String   @default("")
+  phone       String   @default("")
+  unit        String   @default("")
+  productId   Int?
+  product     Product? @relation(fields: [productId], references: [id])
+  interval    Int      @default(3) // months
+  startDate   String
+  lastService String
+  nextService String
+  isActive    Boolean  @default(true)
+  notes       String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderId     Int?
+  order       Order?   @relation(fields: [orderId], references: [id])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+  type      String   // daily, reminder, reschedule, stok, penugasan
+  message   String
+  channels  String   @default("[\"wa\",\"telegram\"]") // JSON array
+  status    String   @default("sent") // sent, failed, pending
+  sentAt    DateTime @default(now())
+}
