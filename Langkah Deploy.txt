@@ -1,0 +1,30 @@
+📋 Langkah Deploy ke Hostinger
+1. Build frontend & siapkan backend
+Jalankan di lokal kamu:
+deploy.bat
+Ini akan:
+- Install dependencies
+- Build frontend → frontend/dist/
+- Copy ke backend/public/
+2. Upload ke Hostinger
+Upload folder backend/ via FTP/SFTP atau Git ke Hostinger Cloud Hosting.
+3. Setel Node.js via hPanel Hostinger
+- Masuk hPanel → Hosting → Node.js
+- Pilih domain kamu
+- Isi:
+- Entry point: src/index.js
+- Environment: production (set NODE_ENV=production)
+- Klik Save → Hostinger akan otomatis jalankan npm install
+4. Setup Database
+Di hPanel, buka Node.js → NPM Scripts, jalankan:
+npx prisma generate
+npx prisma db push
+5. (Opsional) Seed data awal
+Jalankan NPM script:
+node prisma/seed.js
+6. Selesai!
+Aplikasi bisa diakses via https://domainkamu.com
+🔐 Catatan penting
+- .env file sudah terisi dengan Supabase database kamu — aman, tidak perlu diubah
+- File backend/.env jangan diupload ke Git (sudah di .gitignore)
+- Di hPanel Hostinger, kamu bisa set environment variable JWT_SECRET, DATABASE_URL, dll lewat menu Node.js → Environment Variables
