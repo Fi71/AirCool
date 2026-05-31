@@ -232,28 +232,6 @@ export default function Login() {
                 </button>
               </form>
 
-              {/* Demo credentials */}
-              <div className="mt-8 p-4 bg-white/5 border border-white/10 rounded-xl backdrop-blur-sm">
-                <p className="text-xs text-white/50 font-medium mb-2 tracking-wider uppercase">Kredensial Demo</p>
-                <div className="space-y-1.5 text-xs text-white/40">
-                  <p className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-cyan-400/50 rounded-full shrink-0" />
-                    Admin: <span className="text-white/60">admin / admin123</span>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-blue-400/50 rounded-full shrink-0" />
-                    Teknisi: <span className="text-white/60">ahmad / technician123</span>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-teal-400/50 rounded-full shrink-0" />
-                    Teknisi: <span className="text-white/60">budi / technician123</span>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-amber-400/50 rounded-full shrink-0" />
-                    Manajemen: <span className="text-white/60">manajemen / manajemen123</span>
-                  </p>
-                </div>
-              </div>
             </div>
 
             {/* Footer */}
