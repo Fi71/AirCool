@@ -1,11 +1,10 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, '..', '.env'), override: false });
 
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
@@ -23,6 +22,7 @@ import toolRoutes from './routes/tools.js';
 import whatsappRoutes from './routes/whatsapp.js';
 import telegramRoutes from './routes/telegram.js';
 import uploadRoutes from './routes/upload.js';
+import prisma from './config/supabase.js';
 import { startScheduler } from './services/scheduler.js';
 
 const app = express();
@@ -72,7 +72,17 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`AirCool API running on http://localhost:${PORT}`);
   startScheduler();
 });
+
+async function shutdown() {
+  console.log('Shutting down gracefully...');
+  server.close();
+  await prisma.$disconnect();
+  process.exit(0);
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
